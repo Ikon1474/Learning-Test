@@ -1,0 +1,44 @@
+<%- include("partials/header") %>
+
+<section class="auth-wrapper">
+  <div class="auth-card w-100">
+    <p class="text-uppercase fw-bold text-secondary small mb-2">Admin Access</p>
+    <h1 class="page-title h2 mb-3">Login to admin panel</h1>
+    <p class="helper-text mb-4">
+      This login is separate from user login and gives access to learner licence review, pass status, and image upload.
+    </p>
+
+    <form action="/admin/login" method="POST" class="row g-3">
+      <div class="col-12">
+        <label class="form-label fw-semibold" for="username">Admin Username</label>
+        <input
+          class="form-control"
+          type="text"
+          id="username"
+          name="username"
+          placeholder="Enter admin username"
+          value="<%= formData && formData.username ? formData.username : '' %>"
+          required
+        />
+      </div>
+
+      <div class="col-12">
+        <label class="form-label fw-semibold" for="password">Admin Password</label>
+        <input
+          class="form-control"
+          type="password"
+          id="password"
+          name="password"
+          placeholder="Enter admin password"
+          required
+        />
+      </div>
+
+      <div class="col-12 d-grid">
+        <button class="btn btn-primary btn-lg" type="submit">Admin Login</button>
+      </div>
+    </form>
+  </div>
+</section>
+
+<%- include("partials/footer") %>

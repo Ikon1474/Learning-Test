@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title><%= pageTitle %> | Learner Licence Portal</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Manrope:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+      crossorigin="anonymous"
+    />
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-light navbar-glass sticky-top">
+      <div class="container">
+        <a class="navbar-brand fw-bold d-flex align-items-center gap-2" href="/">
+          <span class="brand-mark">LL</span>
+          <span>Learner Licence Portal</span>
+        </a>
+
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#mainNavbar"
+          aria-controls="mainNavbar"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="mainNavbar">
+          <div class="navbar-nav ms-auto align-items-lg-center gap-lg-2">
+            <% if (authAdmin) { %>
+              <a class="nav-link" href="/admin/panel">Admin Panel</a>
+              <form method="POST" action="/admin/logout" class="d-inline">
+                <button type="submit" class="btn btn-outline-secondary btn-sm">Logout</button>
+              </form>
+            <% } else if (authUser) { %>
+              <a class="nav-link" href="/dashboard">Dashboard</a>
+              <a class="nav-link" href="/dashboard/apply">Submit Details</a>
+              <form method="POST" action="/logout" class="d-inline">
+                <button type="submit" class="btn btn-outline-secondary btn-sm">Logout</button>
+              </form>
+            <% } else { %>
+              <a class="nav-link" href="/register">Register</a>
+              <a class="nav-link" href="/login">Login</a>
+              <a class="btn btn-primary btn-sm ms-lg-2" href="/admin/login">Admin Login</a>
+            <% } %>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <main class="page-shell">
+      <div class="container">
+        <% if (successMessage) { %>
+          <div class="alert alert-success border-0 shadow-sm" data-auto-hide="true">
+            <%= successMessage %>
+          </div>
+        <% } %>
+
+        <% if (errorMessage) { %>
+          <div class="alert alert-danger border-0 shadow-sm" data-auto-hide="true">
+            <%= errorMessage %>
+          </div>
+        <% } %>

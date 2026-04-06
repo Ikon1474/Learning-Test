@@ -1,0 +1,83 @@
+const path = require("path");
+
+require("dotenv").config({ path: path.join(__dirname, "..", ".env") });
+
+const cookieParser = require("cookie-parser");
+const express = require("express");
+const connectDB = require("../config/db");
+const { populateLocals, readTokenPayload } = require("../middleware/authMiddleware");
+const adminRoutes = require("../routes/adminRoutes");
+const authRoutes = require("../routes/authRoutes");
+const userRoutes = require("../routes/userRoutes");
+
+const app = express();
+
+app.set("view engine", "ejs");
+app.set("views", path.join(__dirname, "..", "views"));
+
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+app.use(cookieParser());
+app.use(express.static(path.join(__dirname, "..", "public")));
+app.use(populateLocals);
+
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();
+    return next();
+  } catch (error) {
+    return next(error);
+  }
+});
+
+app.get("/", (req, res) => {
+  const adminPayload = readTokenPayload(req.cookies.adminToken);
+  const userPayload = readTokenPayload(req.cookies.userToken);
+
+  if (adminPayload && adminPayload.role === "admin") {
+    return res.redirect("/admin/panel");
+  }
+
+  if (userPayload && userPayload.role === "user") {
+    return res.redirect("/dashboard");
+  }
+
+  return res.redirect("/login");
+});
+
+app.use(authRoutes);
+app.use(userRoutes);
+app.use(adminRoutes);
+
+app.use((req, res) => {
+  res.status(404).render("error", {
+    pageTitle: "Page Not Found",
+    errorMessage: "The page you are looking for does not exist."
+  });
+});
+
+app.use((error, req, res, next) => {
+  console.error("Unhandled application error:", error);
+
+  if (error && error.code === "LIMIT_FILE_SIZE") {
+    return res.redirect("/admin/panel?error=Image size must be 5MB or smaller.");
+  }
+
+  res.status(500).render("error", {
+    pageTitle: "Server Error",
+    errorMessage:
+      process.env.NODE_ENV === "production"
+        ? "Something went wrong. Please try again."
+        : error.message
+  });
+});
+
+const PORT = process.env.PORT || 3000;
+
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`Server ready on http://localhost:${PORT}`);
+  });
+}
+
+module.exports = app;

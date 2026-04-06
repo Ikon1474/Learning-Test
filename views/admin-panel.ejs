@@ -1,0 +1,203 @@
+<%- include("partials/header") %>
+
+<section class="hero-card mb-4">
+  <div class="d-flex flex-wrap justify-content-between align-items-start gap-3">
+    <div>
+      <p class="text-uppercase fw-bold text-secondary small mb-2">Admin Control Center</p>
+      <h1 class="page-title mb-3">Manage learner submissions</h1>
+      <p class="page-subtitle mb-0">
+        Review all learner licence submissions, check each user's application number, date of birth, and learner password, add balance when needed, then mark the learner status as passed or failed.
+      </p>
+    </div>
+
+    <span class="metric-pill">Price: Rs. <%= Number(servicePrice).toFixed(2) %></span>
+  </div>
+</section>
+
+<section class="row g-3 mb-4">
+  <div class="col-md-6 col-xl-3">
+    <div class="stat-card">
+      <p class="stat-label mb-2">Total Users</p>
+      <p class="stat-value mb-2"><%= stats.totalUsers %></p>
+      <p class="footer-note mb-0">Registered user accounts</p>
+    </div>
+  </div>
+
+  <div class="col-md-6 col-xl-3">
+    <div class="stat-card">
+      <p class="stat-label mb-2">Total Applications</p>
+      <p class="stat-value mb-2"><%= stats.totalApplications %></p>
+      <p class="footer-note mb-0">All submitted learner forms</p>
+    </div>
+  </div>
+
+  <div class="col-md-6 col-xl-3">
+    <div class="stat-card">
+      <p class="stat-label mb-2">Pending</p>
+      <p class="stat-value mb-2"><%= stats.pendingApplications %></p>
+      <p class="footer-note mb-0">Waiting for pass and image upload</p>
+    </div>
+  </div>
+
+  <div class="col-md-6 col-xl-3">
+    <div class="stat-card">
+      <p class="stat-label mb-2">Passed</p>
+      <p class="stat-value mb-2"><%= stats.passedApplications %></p>
+      <p class="footer-note mb-0">Completed learner submissions</p>
+    </div>
+  </div>
+
+  <div class="col-md-6 col-xl-3">
+    <div class="stat-card">
+      <p class="stat-label mb-2">Failed</p>
+      <p class="stat-value mb-2"><%= stats.failedApplications %></p>
+      <p class="footer-note mb-0">Marked failed by admin</p>
+    </div>
+  </div>
+</section>
+
+<section class="panel-card table-card mb-4">
+  <div class="d-flex justify-content-between align-items-center gap-3 mb-3">
+    <div>
+      <h2 class="section-title mb-2">Add User Balance</h2>
+      <p class="helper-text mb-0">Users need enough wallet balance before they can submit a learner application.</p>
+    </div>
+  </div>
+
+  <% if (!users.length) { %>
+    <div class="empty-state">
+      <h3 class="h5 mb-2">No users yet</h3>
+      <p class="helper-text mb-0">Registered users will appear here for wallet top-ups.</p>
+    </div>
+  <% } else { %>
+    <div class="table-responsive">
+      <table class="table align-middle mb-0">
+        <thead>
+          <tr>
+            <th>User</th>
+            <th>Wallet Balance</th>
+            <th>Add Balance</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% users.forEach(function (user) { %>
+            <tr>
+              <td class="fw-semibold"><%= user.username %></td>
+              <td>Rs. <%= Number(user.walletBalance || 0).toFixed(2) %></td>
+              <td style="min-width: 260px">
+                <form class="row g-2" method="POST" action="/admin/users/<%= user._id %>/wallet">
+                  <div class="col-8">
+                    <input
+                      class="form-control"
+                      type="number"
+                      name="amount"
+                      min="1"
+                      step="1"
+                      placeholder="Amount"
+                      required
+                    />
+                  </div>
+                  <div class="col-4 d-grid">
+                    <button class="btn btn-primary" type="submit">Add</button>
+                  </div>
+                </form>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</section>
+
+<section class="panel-card table-card">
+  <div class="d-flex justify-content-between align-items-center gap-3 mb-3">
+    <div>
+      <h2 class="section-title mb-2">Learner Applications</h2>
+      <p class="helper-text mb-0">Upload an image to mark a submission as passed, or mark it failed when the learner status is not approved.</p>
+    </div>
+  </div>
+
+  <% if (!applications.length) { %>
+    <div class="empty-state">
+      <h3 class="h5 mb-2">No submissions yet</h3>
+      <p class="helper-text mb-0">User learner submissions will appear here for review.</p>
+    </div>
+  <% } else { %>
+    <div class="table-responsive">
+      <table class="table align-middle mb-0">
+        <thead>
+          <tr>
+            <th>User</th>
+            <th>Application Number</th>
+            <th>Date Of Birth</th>
+            <th>Learner Password</th>
+            <th>Learner Status</th>
+            <th>Submitted</th>
+            <th>Price</th>
+            <th>Image</th>
+            <th>Pass / Update</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% applications.forEach(function (application) { %>
+            <tr>
+              <td class="fw-semibold"><%= application.userId ? application.userId.username : "Unknown User" %></td>
+              <td><code><%= application.applicationNumber %></code></td>
+              <td><%= application.formattedDob %></td>
+              <td><code><%= application.learnerPassword %></code></td>
+              <td>
+                <span class="badge-soft <%= application.status %>">
+                  <%= application.statusLabel %>
+                </span>
+              </td>
+              <td><%= application.formattedDate %></td>
+              <td>Rs. <%= Number(application.servicePrice || servicePrice).toFixed(2) %></td>
+              <td style="min-width: 220px">
+                <% if (application.hasImage) { %>
+                  <div class="d-flex flex-column gap-2">
+                    <img
+                      class="result-image"
+                      src="/admin/applications/<%= application._id %>/image"
+                      alt="Uploaded learner licence image"
+                    />
+                    <a class="btn btn-outline-secondary btn-sm" href="/admin/applications/<%= application._id %>/image" target="_blank" rel="noreferrer">
+                      Open Image
+                    </a>
+                  </div>
+                <% } else { %>
+                  <span class="text-secondary">No image uploaded yet</span>
+                <% } %>
+              </td>
+              <td style="min-width: 280px">
+                <div class="d-flex flex-column gap-2">
+                  <form class="row g-2" method="POST" action="/admin/applications/<%= application._id %>/pass" enctype="multipart/form-data">
+                    <div class="col-12">
+                      <input
+                        class="form-control"
+                        type="file"
+                        name="licenceImage"
+                        accept="image/*"
+                        required
+                      />
+                    </div>
+                    <div class="col-12 d-grid">
+                      <button class="btn btn-primary" type="submit">
+                        <%= application.status === "passed" ? "Replace Image" : "Mark Passed & Upload" %>
+                      </button>
+                    </div>
+                  </form>
+                  <form method="POST" action="/admin/applications/<%= application._id %>/fail" class="d-grid">
+                    <button class="btn btn-outline-secondary" type="submit">Mark Failed</button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</section>
+
+<%- include("partials/footer") %>

@@ -1,0 +1,83 @@
+<%- include("partials/header") %>
+
+<section class="hero-card mb-4">
+  <p class="text-uppercase fw-bold text-secondary small mb-2">New Request</p>
+  <h1 class="page-title mb-3">Submit Learner Details</h1>
+  <p class="page-subtitle mb-4">
+    Fill in the same application number, date of birth, and learner password that belong to your learner licence account. Rs. <%= Number(servicePrice).toFixed(2) %> will be deducted when you submit.
+  </p>
+  <div class="d-flex flex-wrap gap-2">
+    <span class="metric-pill">Wallet Balance: Rs. <%= Number(user.walletBalance || 0).toFixed(2) %></span>
+    <span class="metric-pill">Service Price: Rs. <%= Number(servicePrice).toFixed(2) %></span>
+    <span class="metric-pill warning">No balance means no submission</span>
+  </div>
+</section>
+
+<section class="panel-card">
+  <div class="row g-4">
+    <div class="col-lg-7">
+      <h2 class="section-title mb-3">Submission Form</h2>
+      <form action="/dashboard/apply" method="POST" class="row g-3">
+        <div class="col-12">
+          <label class="form-label fw-semibold" for="applicationNumber">Application Number</label>
+          <input
+            class="form-control"
+            type="text"
+            id="applicationNumber"
+            name="applicationNumber"
+            placeholder="Enter application number"
+            value="<%= formData && formData.applicationNumber ? formData.applicationNumber : '' %>"
+            required
+          />
+        </div>
+
+        <div class="col-12">
+          <label class="form-label fw-semibold" for="dateOfBirth">Date Of Birth</label>
+          <input
+            class="form-control"
+            type="date"
+            id="dateOfBirth"
+            name="dateOfBirth"
+            value="<%= formData && formData.dateOfBirth ? formData.dateOfBirth : '' %>"
+            required
+          />
+        </div>
+
+        <div class="col-12">
+          <label class="form-label fw-semibold" for="learnerPassword">Learner Password</label>
+          <input
+            class="form-control"
+            type="text"
+            id="learnerPassword"
+            name="learnerPassword"
+            placeholder="Enter learner password"
+            value="<%= formData && formData.learnerPassword ? formData.learnerPassword : '' %>"
+            required
+          />
+        </div>
+
+        <div class="col-12 d-flex flex-wrap gap-2">
+          <button class="btn btn-primary btn-lg" type="submit">Submit Details</button>
+          <a class="btn btn-outline-secondary btn-lg" href="/dashboard">Back to Dashboard</a>
+        </div>
+      </form>
+    </div>
+
+    <div class="col-lg-5">
+      <div class="panel-card h-100">
+        <h3 class="section-title h4 mb-3">Admin Support</h3>
+        <p class="helper-text mb-3">
+          If your wallet balance is low, send a Telegram request to admin first. Without sufficient balance, your submission will not be accepted.
+        </p>
+        <a class="btn btn-primary w-100 mb-3" href="<%= telegramLink %>" target="_blank" rel="noreferrer">
+          Message <%= adminTelegram %>
+        </a>
+        <p class="footer-note mb-0">
+          Your submission stays pending until the admin marks it as passed or failed and uploads the learner licence image for passed entries.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<%- include("partials/footer") %>
